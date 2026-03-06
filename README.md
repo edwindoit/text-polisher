@@ -1,6 +1,6 @@
 # Text Polisher
 
-A lightweight macOS utility that fixes your spelling, grammar, and punctuation using a local AI. Press **Cmd+Shift+F** in any text field and your text gets polished instantly. Everything runs locally on your Mac - no data sent to the cloud.
+A lightweight macOS utility that fixes your spelling, grammar, and punctuation using a local AI. Everything runs locally on your Mac - no data sent to the cloud.
 
 ## Setup (one command)
 
@@ -21,12 +21,14 @@ The install script will automatically:
 
 The only manual step is granting Accessibility permissions (the installer opens the settings page for you).
 
-## How It Works
+## Shortcuts
 
-1. Press **Cmd+Shift+F** in any text field
-2. If text is selected, only the selection is polished
-3. If nothing is selected, the entire field is selected and polished
-4. The corrected text replaces the original
+| Shortcut | Action |
+|---|---|
+| **Cmd+Shift+F** | Polish text and paste it back into the field |
+| **Cmd+Shift+Z** | Polish text and copy to clipboard (doesn't paste) |
+
+If text is selected, only the selection is polished. If nothing is selected, the entire field is selected and polished. You'll hear a ping sound when it's done.
 
 Works in: browsers, Notes, VS Code, Slack, and most other apps.
 
