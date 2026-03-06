@@ -2,6 +2,7 @@
 """Text Polisher — macOS utility that polishes text via Ollama."""
 
 import os
+import subprocess
 import threading
 import time
 
@@ -88,7 +89,7 @@ def call_ollama(text):
 
 # ── Main polish flow ───────────────────────────────────────────────
 
-def polish_text():
+def polish_text(paste=True):
     global processing
     if processing:
         return
@@ -123,9 +124,13 @@ def polish_text():
 
         if polished:
             set_clipboard(polished)
-            simulate_keys(Key.cmd, "v")
-            time.sleep(0.1)
-            print("[text-polisher] Done.")
+            if paste:
+                simulate_keys(Key.cmd, "v")
+                time.sleep(0.1)
+                print("[text-polisher] Done (pasted).")
+            else:
+                print("[text-polisher] Done (copied to clipboard).")
+            subprocess.Popen(["afplay", "/System/Library/Sounds/Ping.aiff"])
         else:
             set_clipboard(original_clipboard)
             print("[text-polisher] Polish failed, clipboard restored.")
@@ -147,7 +152,9 @@ def on_press(key):
     elif cmd_pressed and shift_pressed:
         try:
             if hasattr(key, "char") and key.char == "f":
-                threading.Thread(target=polish_text, daemon=True).start()
+                threading.Thread(target=polish_text, args=(True,), daemon=True).start()
+            elif hasattr(key, "char") and key.char == "z":
+                threading.Thread(target=polish_text, args=(False,), daemon=True).start()
         except AttributeError:
             pass
 
@@ -166,7 +173,8 @@ def main():
     print("=" * 50)
     print("  Text Polisher")
     print(f"  Model: {MODEL}")
-    print("  Hotkey: Cmd+Shift+F")
+    print("  Cmd+Shift+F  →  Polish & paste")
+    print("  Cmd+Shift+Z  →  Polish & copy to clipboard")
     print("=" * 50)
 
     # Check Ollama connectivity and pre-warm model into memory
@@ -179,7 +187,7 @@ def main():
     except Exception:
         print("[text-polisher] WARNING: Cannot reach Ollama. Make sure it's running.")
 
-    print("[text-polisher] Listening for Cmd+Shift+F...")
+    print("[text-polisher] Listening for hotkeys...")
 
     with Listener(on_press=on_press, on_release=on_release) as listener:
         listener.join()
