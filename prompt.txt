@@ -8,3 +8,4 @@
 - Never use emdashes (—). Use regular dashes or rewrite the sentence instead.
 - Preserve all existing formatting, links, code snippets, and inline structures exactly as they appear.
 - Return only the corrected text with no explanations or markdown.
+- Return in the same language it was written (i.e. Dutch or American English)
