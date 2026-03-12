@@ -11,10 +11,10 @@ from pynput.keyboard import Controller, Key, Listener
 
 # ── Configuration ──────────────────────────────────────────────────
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_REPO = "mlx-community/Qwen3.5-9B-OptiQ-4bit"
+MODEL_REPO = "mlx-community/Qwen3-14B-6bit"
 PROMPT_FILE = os.path.join(SCRIPT_DIR, "prompt.txt")
 MAX_TOKENS = 4096
-DEFAULT_TOKENS_PER_SEC = 26.0  # conservative starting estimate
+DEFAULT_TOKENS_PER_SEC = 16.0  # conservative starting estimate for 14B 6-bit
 
 def load_prompt():
     """Load system prompt from prompt.txt (re-read each time so edits take effect immediately)."""
@@ -72,9 +72,20 @@ def estimate_seconds(text):
 NOTIFY_APP = os.path.join(SCRIPT_DIR, "TextPolisherNotify.app", "Contents", "MacOS", "notify")
 
 
+_notify_proc = None
+
 def notify(title, message, duration=3, countdown=0):
     """Show a floating toast notification via the bundled helper app."""
-    subprocess.Popen([NOTIFY_APP, title, message, str(duration), str(countdown)])
+    global _notify_proc
+    dismiss_notify()
+    _notify_proc = subprocess.Popen([NOTIFY_APP, title, message, str(duration), str(countdown)])
+
+def dismiss_notify():
+    """Dismiss the current notification if one is showing."""
+    global _notify_proc
+    if _notify_proc and _notify_proc.poll() is None:
+        _notify_proc.kill()
+    _notify_proc = None
 
 
 # ── MLX integration ───────────────────────────────────────────────
@@ -171,6 +182,7 @@ def polish_text(paste=True):
         polished = call_mlx(text)
 
         if polished:
+            dismiss_notify()
             set_clipboard(polished)
             if paste:
                 simulate_keys(Key.cmd, "v")

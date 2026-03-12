@@ -98,6 +98,18 @@ class ToastWindow: NSWindow {
         DispatchQueue.main.asyncAfter(deadline: .now() + duration) {
             self.fadeOutAndClose()
         }
+
+        // Handle SIGTERM: fade out gracefully when parent process kills us
+        let termSource = DispatchSource.makeSignalSource(signal: SIGTERM, queue: .main)
+        termSource.setEventHandler { [weak self] in
+            self?.fadeOutAndClose()
+        }
+        termSource.resume()
+        signal(SIGTERM, SIG_IGN) // Let DispatchSource handle it
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        fadeOutAndClose()
     }
 
     func updateCountdownText() {

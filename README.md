@@ -15,7 +15,7 @@ cd text-polisher
 The install script will automatically:
 - Install Homebrew and Python 3 (if needed)
 - Create a virtual environment with dependencies
-- Download the MLX model (~5 GB)
+- Download the MLX model (~11 GB)
 - Set up auto-start on login
 
 The only manual step is granting Accessibility permissions (the installer opens the settings page for you).
@@ -27,7 +27,7 @@ The only manual step is granting Accessibility permissions (the installer opens 
 | **Cmd+Shift+F** | Polish text and paste it back into the field |
 | **Cmd+Shift+Z** | Polish text and copy to clipboard (doesn't paste) |
 
-If text is selected, only the selection is polished. If nothing is selected, the entire field is selected and polished. A countdown notification shows the estimated time, and you'll hear a ping when it's done.
+If text is selected, only the selection is polished. If nothing is selected, the entire field is selected and polished. A countdown notification shows the estimated time, and you'll hear a ping when it's done. The notification dismisses automatically when finished, or you can click it to dismiss early.
 
 Works in: browsers, Notes, VS Code, Slack, and most other apps.
 
