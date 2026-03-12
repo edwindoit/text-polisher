@@ -1,6 +1,6 @@
 # Text Polisher
 
-A lightweight macOS utility that fixes your spelling, grammar, and punctuation using a local AI. Everything runs locally on your Mac - no data sent to the cloud.
+A lightweight macOS utility that fixes your spelling, grammar, and punctuation using a local AI. Everything runs locally on your Mac — no data sent to the cloud. Powered by [MLX](https://github.com/ml-explore/mlx).
 
 ## Setup (one command)
 
@@ -13,10 +13,9 @@ cd text-polisher
 ```
 
 The install script will automatically:
-- Install Homebrew (if needed)
-- Install Python 3 (if needed)
-- Install Ollama (if needed)
-- Download the AI model (~6.6 GB)
+- Install Homebrew and Python 3 (if needed)
+- Create a virtual environment with dependencies
+- Download the MLX model (~5 GB)
 - Set up auto-start on login
 
 The only manual step is granting Accessibility permissions (the installer opens the settings page for you).
@@ -28,7 +27,7 @@ The only manual step is granting Accessibility permissions (the installer opens 
 | **Cmd+Shift+F** | Polish text and paste it back into the field |
 | **Cmd+Shift+Z** | Polish text and copy to clipboard (doesn't paste) |
 
-If text is selected, only the selection is polished. If nothing is selected, the entire field is selected and polished. You'll hear a ping sound when it's done.
+If text is selected, only the selection is polished. If nothing is selected, the entire field is selected and polished. A countdown notification shows the estimated time, and you'll hear a ping when it's done.
 
 Works in: browsers, Notes, VS Code, Slack, and most other apps.
 
@@ -38,20 +37,14 @@ Edit `prompt.txt` to change how the AI polishes your text. Changes take effect i
 
 ## Changing the Model
 
-Edit `MODEL` at the top of `text_polisher.py`. Smaller models are faster, larger models are more accurate:
+Edit `MODEL_REPO` at the top of `text_polisher.py`. Any [MLX-compatible model](https://huggingface.co/mlx-community) will work. After changing, restart:
 
-| Model | Size | Speed |
-|---|---|---|
-| `qwen3.5:4b` | 3.4 GB | Fast |
-| `qwen3.5:9b` | 6.6 GB | Medium (default) |
-| `mistral` | 4.4 GB | Slow |
-
-After changing, pull the new model and restart:
 ```bash
-ollama pull <model-name>
 launchctl unload ~/Library/LaunchAgents/com.textpolisher.plist
 launchctl load ~/Library/LaunchAgents/com.textpolisher.plist
 ```
+
+The new model will be downloaded automatically on first run.
 
 ## Uninstall
 
@@ -64,5 +57,4 @@ rm -rf ~/text-polisher  # or wherever you cloned it
 ## Troubleshooting
 
 - **Hotkey not working** — Make sure you granted Accessibility permissions to the Python.app binary shown during install. Restart may be needed after granting.
-- **Ollama not reachable** — Open the Ollama app, or run `ollama serve`.
 - **Logs** — Check `~/Library/Logs/text-polisher.log`.
