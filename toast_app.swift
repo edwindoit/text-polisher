@@ -31,10 +31,11 @@ class ToastWindow: NSWindow {
 
         // Calculate layout
         let titleHeight: CGFloat = 20
-        let messageSize = messageLabel.sizeThatFits(NSSize(width: width - padding * 2, height: .greatestFiniteMagnitude))
+        let hasMessage = !message.isEmpty
+        let messageSize = hasMessage ? messageLabel.sizeThatFits(NSSize(width: width - padding * 2, height: .greatestFiniteMagnitude)) : .zero
         let countdownHeight: CGFloat = countdown > 0 ? 22 : 0
         let spacing: CGFloat = 4
-        let totalHeight = padding + titleHeight + spacing + messageSize.height + (countdown > 0 ? spacing + countdownHeight : 0) + padding
+        let totalHeight = padding + titleHeight + (hasMessage ? spacing + messageSize.height : 0) + (countdown > 0 ? spacing + countdownHeight : 0) + padding
 
         // Position at top-right of main screen
         let screen = NSScreen.main!
@@ -63,9 +64,11 @@ class ToastWindow: NSWindow {
         titleLabel.frame = NSRect(x: padding, y: yPos, width: width - padding * 2, height: titleHeight)
         bg.addSubview(titleLabel)
 
-        yPos -= spacing + messageSize.height
-        messageLabel.frame = NSRect(x: padding, y: yPos, width: width - padding * 2, height: messageSize.height)
-        bg.addSubview(messageLabel)
+        if hasMessage {
+            yPos -= spacing + messageSize.height
+            messageLabel.frame = NSRect(x: padding, y: yPos, width: width - padding * 2, height: messageSize.height)
+            bg.addSubview(messageLabel)
+        }
 
         if countdown > 0 {
             yPos -= spacing + countdownHeight
