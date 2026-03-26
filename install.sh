@@ -94,6 +94,8 @@ cat > ~/Library/LaunchAgents/$PLIST_NAME << EOF
     <true/>
     <key>KeepAlive</key>
     <true/>
+    <key>ThrottleInterval</key>
+    <integer>3</integer>
     <key>StandardOutPath</key>
     <string>$LOG_PATH</string>
     <key>StandardErrorPath</key>

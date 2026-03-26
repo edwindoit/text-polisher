@@ -195,6 +195,10 @@ def call_openrouter(text, model_cfg, config):
         )
         if resp.status_code != 200:
             print(f"[text-polisher] OpenRouter HTTP {resp.status_code}: {resp.text}", flush=True)
+            if resp.status_code == 402:
+                notify("Out of credits", "Top up at openrouter.ai/settings/keys", duration=5)
+            else:
+                notify("OpenRouter error", f"HTTP {resp.status_code}", duration=4)
             return None
         t1 = time.time()
 
@@ -253,6 +257,14 @@ def polish_text(paste=True):
             print("[text-polisher] No text found to polish.")
             return
 
+        # Guard against accidentally polishing massive texts
+        max_chars = 6000  # ~2 pages
+        if len(text) > max_chars:
+            notify("Text too long", f"{len(text)} chars (max {max_chars})")
+            print(f"[text-polisher] Text too long: {len(text)} chars (max {max_chars}). Aborting.")
+            set_clipboard(original_clipboard)
+            return
+
         print(f"[text-polisher] Polishing {len(text)} chars with {model_name}...")
 
         # Show estimated time notification
@@ -293,26 +305,35 @@ def polish_text(paste=True):
 
 def on_press(key):
     global cmd_pressed, shift_pressed
-    if key == Key.cmd or key == Key.cmd_r:
-        cmd_pressed = True
-    elif key == Key.shift or key == Key.shift_r:
-        shift_pressed = True
-    elif cmd_pressed and shift_pressed:
-        try:
+    try:
+        if key == Key.cmd or key == Key.cmd_r:
+            cmd_pressed = True
+        elif key == Key.shift or key == Key.shift_r:
+            shift_pressed = True
+        elif cmd_pressed and shift_pressed:
             if hasattr(key, "char") and key.char == "f":
                 threading.Thread(target=polish_text, args=(True,), daemon=True).start()
             elif hasattr(key, "char") and key.char == "z":
                 threading.Thread(target=polish_text, args=(False,), daemon=True).start()
-        except AttributeError:
-            pass
+    except Exception as e:
+        print(f"[text-polisher] on_press error: {e}", flush=True)
 
 
 def on_release(key):
     global cmd_pressed, shift_pressed
-    if key == Key.cmd or key == Key.cmd_r:
-        cmd_pressed = False
-    elif key == Key.shift or key == Key.shift_r:
-        shift_pressed = False
+    try:
+        if key == Key.cmd or key == Key.cmd_r:
+            cmd_pressed = False
+        elif key == Key.shift or key == Key.shift_r:
+            shift_pressed = False
+    except Exception as e:
+        print(f"[text-polisher] on_release error: {e}", flush=True)
+
+
+def _reset_modifier_state():
+    global cmd_pressed, shift_pressed
+    cmd_pressed = False
+    shift_pressed = False
 
 
 # ── Startup ────────────────────────────────────────────────────────
@@ -333,10 +354,20 @@ def main():
     if model_cfg["provider"] == "mlx":
         load_mlx_model(model_cfg["model_id"])
 
-    print("[text-polisher] Listening for hotkeys...")
-
-    with Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
+    # Run listener in a loop — macOS can silently kill the Quartz event tap,
+    # leaving the process alive but unable to receive hotkeys. Restarting the
+    # listener recovers from this.
+    while True:
+        print("[text-polisher] Listening for hotkeys...")
+        try:
+            with Listener(on_press=on_press, on_release=on_release) as listener:
+                listener.join()
+        except Exception as e:
+            print(f"[text-polisher] Listener error: {e}", flush=True)
+        # Listener exited (event tap died or error) — restart after a brief pause
+        print("[text-polisher] Listener stopped, restarting in 2s...", flush=True)
+        _reset_modifier_state()
+        time.sleep(2)
 
 
 if __name__ == "__main__":

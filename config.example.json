@@ -1,0 +1,24 @@
+{
+  "active_model": 1,
+  "openrouter_api_key": "sk-or-v1-your-key-here",
+  "models": {
+    "1": {
+      "name": "ChatGPT 5.4",
+      "provider": "openrouter",
+      "model_id": "openai/gpt-5.4",
+      "tokens_per_sec": 90.0
+    },
+    "2": {
+      "name": "Claude Sonnet 4.6",
+      "provider": "openrouter",
+      "model_id": "anthropic/claude-sonnet-4.6",
+      "tokens_per_sec": 80.0
+    },
+    "3": {
+      "name": "Qwen3 14B (MLX local)",
+      "provider": "mlx",
+      "model_id": "mlx-community/Qwen3-14B-6bit",
+      "tokens_per_sec": 16.0
+    }
+  }
+}
